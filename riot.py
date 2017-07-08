@@ -1,8 +1,8 @@
 import requests
 
 #Raki Road summonerID = 48536262
-myKey = "RGAPI-ba1d1b03-530a-4296-9d39-bbaa9f13f49c"
-myKey2 = "RGAPI-5407d5c3-b6a3-4a82-bf22-60cb4e7b01e9"
+myKey = "RGAPI-e19a5d68-d354-47c1-ba18-0e5a2c13f7fb"
+myKey2 = "RGAPI-d4c0ee37-dc9a-484d-be4c-ed8deaaaa726"
 
 def requestSummonersData(region, summonerName):
     #////////// Retrieves summoner Data \\\\\\\\\\

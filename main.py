@@ -6,9 +6,10 @@ LARGE_FONT=("Comic Sans MS", 12)
 
 
 def main(name, displayResult, rank, a, b ,c , d, e, f, g, h, rankText, regVal):
+
+    #defining globale variables
     summonerName = " "
     realsummonerName = " "
-
 
     tempName = str(name)
     tempRegion = str(regVal)
@@ -96,6 +97,7 @@ def main(name, displayResult, rank, a, b ,c , d, e, f, g, h, rankText, regVal):
     rank_division_2 = []
     rank_val_2 = []
 
+    #----------Retrieves rank data from other players----------
     for j in range (0, 10):
         testJSON = riot.requestsRankData(region, str(players_ids_1[j]))
         arrayLength = len(testJSON[0]['entries'])
@@ -118,7 +120,7 @@ def main(name, displayResult, rank, a, b ,c , d, e, f, g, h, rankText, regVal):
     totalTier = []
     totalDivision = []
 
-    #Assign weights to other summoner's Division
+    #----------Calculates other players MMR----------
     for i in range (0, 10):
 
         if rank_tier_1[i] == "BRONZE":
@@ -150,7 +152,7 @@ def main(name, displayResult, rank, a, b ,c , d, e, f, g, h, rankText, regVal):
     
     MMRcompare = (sum(totalTier) / float(len(totalDivision))) + (sum(totalDivision) / float(len(totalDivision)))
 
-    #This is calculates where the user mmr should actually be
+    #----------- Calculates user mmr ----------
     userTier = 0
     userDivision = 0
 
@@ -197,16 +199,18 @@ def main(name, displayResult, rank, a, b ,c , d, e, f, g, h, rankText, regVal):
     userTotal = userTier + userDivision
     realMMR = (userTotal + MMRcompare) / 2
 
-    if realMMR > userTotal:
-        outText = "You will skip a division! Your MMR, " + str(realMMR) + ", is higher than your current division average of " + str(userTotal)
+    #----------Determines waht message to display----------
+    if realMMR > userTotal+200 :
+        outText = tempName + ", congrats you will skip a division! Your MMR, " + str(int(realMMR)) + ", is higher than your current division average of " + str(userTotal)
         displayResult.set(outText)
         rankText.set(str(rank_val))
-    elif realMMR < userTotal:
-        outText = "You are in Elo Hell Fam! Your MMR, " + str(realMMR) + ", is lower than your current division average of " + str(userTotal)
+    elif realMMR < userTotal-200:
+        outText = tempName + ", you are in Elo Hell Fam! Your MMR, " + str(int(realMMR)) + ", is lower than your current division average of " + str(userTotal)
         displayResult.set(outText)
         rankText.set(str(rank_val))
     else:
-        displayResult.set("Your MMR is average")
+        outText = tempName + " you belong in your ELO! Your MMR, " +str(int(realMMR)) + ", is within the acceptable range of your current division of " + str(userTotal)
+        displayResult.set(outText)
         rankText.set(str(rank_val))
 
 #===============================================================================================
@@ -218,6 +222,7 @@ class mmrCalc(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
+        #----------Icon and Program name at top----------
         tk.Tk.title(self, "That Tasted Purple!")
         tk.Tk.iconbitmap(self, default="res/images/cupiconsmall.ico")
 
@@ -246,26 +251,31 @@ class StartPage(tk.Frame):
         def __init__(self, parent, controller):
             tk.Frame.__init__(self, parent)
 
+            #----------Main Icon----------
             photo = tk.PhotoImage(file="res/images/cupcakeSmall.png")
             pic1 = ttk.Label(self, image=photo)
             pic1.image = photo #keeps the reference
             pic1.grid(row = 0)
 
+            #----------Text under icon----------
             label = ttk.Label(self, text ="THAT TASTED PURPLE!", font = LARGE_FONT)
-            label.grid(row = 1, padx = 100, pady = 20)
+            label.grid(row = 1, padx = 400, pady = 20)
 
-            form1 = ttk.Entry(self, width=80)
+            #----------User input Form-----------
+            form1 = ttk.Entry(self, width=100)
             form1.grid(row = 2)
 
             v = tk.StringVar(self)
             rankText = tk.StringVar(self)
             regionSelect = tk.StringVar(self)
             
+            #----------drop down menu----------
             regionSelect.set("NA")
-            choices = ["NA", "EUW", "EUNE", "KR", "JP", "BR"]
+            choices = ["NA", "NA", "EUW", "EUNE", "KR", "JP", "BR"]
             option  = ttk.OptionMenu(self, regionSelect, *choices)
-            option.grid(row = 4, sticky="W", padx = 160)
+            option.grid(row = 4, sticky="W", padx = 420)
 
+            #---------Icons file path defined----------
             icon1 = tk.PhotoImage(file="res/rank/Blank2.png")
             icon2 = tk.PhotoImage(file="res/rank/Bronze.png")
             icon3 = tk.PhotoImage(file="res/rank/Silver.png")
@@ -275,22 +285,27 @@ class StartPage(tk.Frame):
             icon7 = tk.PhotoImage(file="res/rank/Master.png")
             icon8 = tk.PhotoImage(file="res/rank/Challenger.png")
 
+            #----------rank badge----------
             rank = ttk.Label(self, image=icon1)
             rank.image=icon1
             rank.grid(row=6)
             
+            #----------space between form and button----------
             spacer = ttk.Label(self, text=" ")
             spacer.grid(row = 3)
             
             button1 = ttk.Button(self, text= "FIND MY MMR!", command=lambda: main(form1.get(), v, rank, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, rankText, regionSelect.get()))
-            button1.grid(row = 4, columnspan=3, padx =150, sticky="E")
+            button1.grid(row = 4, columnspan=3, padx =400, sticky="E")
             form1.bind("<Return>", lambda event: main(form1.get(), v, rank, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, rankText, regionSelect.get()))
 
+            #----------result display message----------
             label2 = ttk.Label(self, textvariable = v, font = LARGE_FONT)
             label2.grid(row = 5, padx = 100, pady = 25)
 
+            #----------rank text----------
             label3 = ttk.Label(self, textvariable = rankText, font = LARGE_FONT)
             label3.grid(row = 7, padx = 100, pady= 20)
+            
 
 #Initializes the Program
 app = mmrCalc()
